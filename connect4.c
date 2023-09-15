@@ -1,4 +1,4 @@
-// Created by Home on 9/14/23.
+// Created by Home on 9/14/23
 
 #include <stdio.h>
 #include <stdlib.h>
