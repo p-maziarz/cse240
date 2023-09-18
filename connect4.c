@@ -1,5 +1,3 @@
-// Created by Home on 9/14/23
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -21,40 +19,67 @@ int GetColumn(char player) {
     return column-1;
 }
 
-void PrintBoard() { //this allows the board to display
-    char board[NUM_ROWS][NUM_COLS];
-    printf("%s", *board); //asterisk changes pointer from char to string
-}
-
-void PlayConnectFour() { //this runs the actual game
-    bool game_over; //TODO: instantiate game_over and make sure it works. this is just a placeholder for now
-    char player; //TODO: instantiate player variable and make sure it works. this is just a placeholder for now
-    char board[NUM_ROWS][NUM_COLS]; //creates empty board
-    // . . .
-    PrintBoard(board); //prints the board
-    //. . .
-    //TODO: Allow players to pick a column for their token
-    while (!game_over) {
-        int col = GetColumn(player);
-        //. . .
-        player = (player == 'R' ? 'Y' : 'R');
+int GetEmptyRow(char board[][NUM_COLS], int col) {
+    for (int row = NUM_ROWS - 1; row >= 0; row--) {
+        if (board[row][col] == ' ') {
+            return row; //checks for the next empty row and returns it
+        }
     }
-    printf("%s wins!", &player);
-}
-
-char CheckWinner(char board[][NUM_COLS]) { //checks for the winner of the game
-    //TODO: check rows for four sequential tokens, returns winner or ' '
-    return ' ';
+    return -1; //returns -1 if there are no empty rows available
 }
 
 bool CheckBoardFull(char board[][NUM_COLS]) { //can only use bool if you #include <stdbool.h>
-    // . . .
+    for (int row = 0; row < NUM_ROWS; row++) {
+        for (int col = 0; col < NUM_COLS; col++) {
+            if (board[row][col] == ' ') {
+                return false; //if empty spaces are found, the board isnt full and therefore returns false
+            }
+        }
+    }
     return true; //if the board is full, this returns true
 }
 
-// TODO: Check for the next available row for given column
-int GetEmptyRow(char board[][NUM_COLS], int col) {
-    return true; //TODO: Add return statement; this is a placeholder
+void PrintBoard(char board[][NUM_COLS]) { //this allows the board to display
+    printf("%s", *board); //asterisk changes pointer from char to string
+    for (int r = 0; r < NUM_ROWS; r++) {
+        for (int c = 0; c < NUM_COLS; c++) {
+            printf("%c", board[r][c]); //loops and prints each char in the rows and columns
+        }
+        printf("\n");
+    }
+}
+
+void PlayConnectFour() { //this runs the actual game
+    bool game_over = false; //sets game_over to false so we can create a while loop with it
+    char player = 'R'; //sets starting player as red, uses single quotes to instantiate the char type
+    char board[NUM_ROWS][NUM_COLS]; //declares board
+
+    for (int r = 0; r < NUM_ROWS; r++) { //creates board with empty spaces
+        for (int c = 0; c < NUM_COLS; c++) {
+            board[r][c] = ' ';
+        }
+    }
+
+    char winner = ' ';
+
+    PrintBoard(board); //prints the board
+
+    while (!game_over) {
+        int col = GetColumn(player); //player chooses column
+        int row = GetEmptyRow(board, col); //finds next available row
+        board[row][col] = player; //puts players token in the available row of the column
+
+        player = (player == 'R' ? 'Y' : 'R');
+        PrintBoard(board); //prints the updated board each turn
+        if (winner != ' ') { //checks for winner
+            game_over = true;
+            printf("%c wins!", winner);
+        }
+        else if (CheckBoardFull(board)) { //checks if board is full
+            game_over = true;
+            printf("It's a tie!");
+        }
+    }
 }
 
 int main() {
