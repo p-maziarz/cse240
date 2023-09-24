@@ -4,10 +4,6 @@
 #include <time.h>
 #include <string.h>
 
-/* TODO:
-- fix syntax and readability
- */
-
 struct playerInfo {
     char name[100];
     int guessCount;
