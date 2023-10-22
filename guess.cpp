@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <ctime>
 
 using namespace std;
 
@@ -40,17 +41,14 @@ public:
         ReadLeaders("leaderboard.txt");
     }
 
-
     void ReadLeaders(const string& filename) {
         ifstream file(filename);
         if (file.is_open()) {
             for (int i = 0; i < NUM_LEADERS; ++i) {
                 string name;
                 int num_guesses;
-
                 if (file >> name >> num_guesses) {
-                    leaders[i].SetName(name);
-                    leaders[i].SetNumGuesses(num_guesses);
+                    leaders[i] = Player(name, num_guesses); // Initialize the player object
                 }
             }
             file.close();
@@ -95,48 +93,66 @@ private:
 
 int main() {
     LeaderBoard leaderboard;
-    cout << "Welcome! Press 'q' to quit or any other key to continue:\n";
+    srand(static_cast<unsigned>(time(0))); // Seed the random number generator
+
     char c;
     bool game_over = false;
 
     while (!game_over) {
+        Player current_player;
+
+        cout << "Welcome! Press 'q' to quit or any other key to continue:\n";
         cin >> c;
         if (c == 'q') {
             game_over = true;
             cout << "Bye Bye!\n";
         } else {
-            Player current_player;
-            cout << "Enter your name: ";
-            string name;
-            cin >> name;
-            current_player.SetName(name);
-
-            // Implement the guessing game logic here
-            int num_guesses = 0;
-            int target = rand() % 100 + 1;
-            int guess;
+            // Reset the leaderboard display flag
+            bool display_leaderboard = false;
 
             while (true) {
-                cout << "Guess a number between 1 and 100: ";
-                cin >> guess;
-                num_guesses++;
+                cout << "Enter your name: ";
+                string name;
+                cin >> name;
+                current_player.SetName(name);
 
-                if (guess == target) {
-                    cout << "Congratulations! You guessed the correct number in " << num_guesses << " attempts.\n";
-                    current_player.SetNumGuesses(num_guesses);
-                    leaderboard.InsertPlayer(current_player);
-                    break; // Exit the game loop and prompt to play again or quit
-                } else if (guess < target) {
-                    cout << "Try a higher number.\n";
-                } else {
-                    cout << "Try a lower number.\n";
+                int num_guesses = 0;
+                int target = rand() % 100 + 1;
+                int guess;
+
+                while (true) {
+                    cout << "Guess a number between 1 and 100: ";
+                    cin >> guess;
+                    num_guesses++;
+
+                    if (guess == target) {
+                        cout << "Congratulations! You guessed the correct number in " << num_guesses << " attempts.\n";
+                        current_player.SetNumGuesses(num_guesses);
+                        leaderboard.InsertPlayer(current_player);
+                        display_leaderboard = true; // Set the flag to display the leaderboard
+                        break; // Exit the game loop
+                    } else if (guess < target) {
+                        cout << "Try a higher number.\n";
+                    } else {
+                        cout << "Try a lower number.\n";
+                    }
+                }
+
+                if (display_leaderboard) {
+                    // Display and save the leaderboard after a game
+                    leaderboard.DisplayLeaderboard();
+                    leaderboard.SaveLeaders("leaderboard.txt");
+                }
+
+                cout << "Press 'q' to quit or any other key to play again: ";
+                cin >> c;
+
+                if (c == 'q') {
+                    game_over = true;
+                    break;
                 }
             }
         }
-        // Display and save the leaderboard at the end of each game
-        leaderboard.DisplayLeaderboard();
-        leaderboard.SaveLeaders("leaderboard.txt");
-        cout << "Press 'q' to quit or any other key to play again: ";
     }
 
     return 0;
